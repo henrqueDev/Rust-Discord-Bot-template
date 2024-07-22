@@ -1,29 +1,40 @@
 extern crate dotenv;
-use std::{env, sync::Arc};
-
+use commands_list::commands;
 use dotenv::dotenv;
-use handler::handler_model::Handler;
-use serenity::prelude::*;
 
-pub mod handler;
+use poise::serenity_prelude as serenity;
+
 pub mod commands;
+pub mod commands_list;
+pub mod util;
+pub struct Data {} // User data, which is stored and accessible in all command invocations
+type Error = Box<dyn std::error::Error + Send + Sync>;
+type Context<'a> = poise::Context<'a, Data, Error>;
+
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
     // Login with a bot token from the environment
-    let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
-    // Set gateway intents, which decides what events the bot will be notified about
-    let intents = GatewayIntents::GUILD_MESSAGES
-        | GatewayIntents::DIRECT_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT;
-    // Create a new instance of the Client, logging in as a bot.
-    let event_handler_arc = Arc::new(Handler);
-    let mut client =
-        Client::builder(&token, intents).event_handler_arc(event_handler_arc).await.expect("Err creating client");
-    
-    // Start listening for events by starting a single shard
-    if let Err(why) = client.start().await {
-        println!("Client error: {why:?}");
-    }
+    let token = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
+    let intents = serenity::GatewayIntents::non_privileged();
+
+    let framework = poise::Framework::builder()
+        .options(poise::FrameworkOptions {
+            commands: commands(),
+            ..Default::default()
+        })
+        .setup(|ctx, _ready, framework| {
+            Box::pin(async move {
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                Ok(Data {})
+            })
+        })
+        .build();
+
+    let client = serenity::ClientBuilder::new(token, intents)
+        .framework(framework)
+        .await;
+    client.unwrap().start().await.unwrap();
+
 }
