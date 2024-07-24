@@ -1,7 +1,8 @@
-use serenity::all::{Context, Message};
+use crate::Error;
+use crate::Context;
 
-pub async fn ping(ctx: Context, msg: Message) {
-    if let Err(why) = msg.channel_id.say(&ctx.http, "Pong!").await {
-        println!("Error sending message: {why:?}");
-    }
+#[poise::command(slash_command, prefix_command)]
+pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
+    ctx.say("Pong!").await?;
+    Ok(())
 }

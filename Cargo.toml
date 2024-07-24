@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+diesel = { version = "2.2.0", features = ["postgres"] }
+diesel_migrations = "2.2.0"
 dotenv = "0.15.0"
 serenity = "0.12"
+poise = "0.6.1"
+tracing = "0.1.40"
 tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
