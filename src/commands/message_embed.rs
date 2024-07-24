@@ -5,6 +5,7 @@ use ::serenity::all::CreateEmbedFooter;
 use poise::serenity_prelude as serenity;
 
 
+use crate::repository::users::create::create;
 use crate::util::interaction::interaction_handler;
 use crate::Error;
 use crate::Context;
@@ -49,11 +50,11 @@ pub async fn message_embed(ctx: Context<'_>) -> Result<(), Error> {
     };
 
     let (register, global) = match &**pressed_button_id {
-    "verify" => (true, true),
-    other => {
-        tracing::warn!("unknown register button ID: {:?}", other);
-        return Ok(());
-    }
+        "verify" => (true, true),
+        other => {
+            tracing::warn!("unknown register button ID: {:?}", other);
+            return Ok(());
+        }
     };
 
     if global {
@@ -62,6 +63,11 @@ pub async fn message_embed(ctx: Context<'_>) -> Result<(), Error> {
                 ":gear: Verifiying...",
             ))
             .await?;
+
+            let user = &ctx.author().name;
+            let user_id = ctx.author().id.get() as i64;
+
+            create(user.to_owned(), user_id).await;
         }
     }
     
