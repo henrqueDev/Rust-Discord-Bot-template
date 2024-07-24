@@ -6,7 +6,8 @@ use diesel::{prelude::{Insertable, Queryable}, Selectable};
 pub struct User {
     pub  id: i32,
     pub name: String,
-    pub id_discord: i64
+    pub id_user_discord: i64,
+    pub id_server_discord: i64
 }
 
 
@@ -14,5 +15,6 @@ pub struct User {
 #[diesel(table_name = crate::schema::users)]
 pub struct UserDTO {
     pub name: String,
-    pub id_discord: i64
+    pub id_user_discord: i64,
+    pub id_server_discord: i64
 }

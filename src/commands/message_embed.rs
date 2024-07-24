@@ -66,8 +66,9 @@ pub async fn message_embed(ctx: Context<'_>) -> Result<(), Error> {
 
             let user = &ctx.author().name;
             let user_id = ctx.author().id.get() as i64;
-
-            create(user.to_owned(), user_id).await;
+            let server_id = ctx.guild_id().unwrap().get() as i64;
+            
+            create(user.to_owned(), user_id, server_id).await;
         }
     }
     
